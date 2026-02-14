@@ -20,7 +20,7 @@ description: |
 
   Thank you for your cooperation.
 
-grade: devel
+grade: stable
 confinement: strict
 architectures:
   - build-on: amd64
