@@ -1,0 +1,5 @@
+# The LicenseRef-FairUse pseudo license
+
+Files under this license are not licensed under any open source license, but their use is considered fair use under copyright law.
+
+For usage of such files, please contact the copyright holders via the address in the REUSE.toml file.

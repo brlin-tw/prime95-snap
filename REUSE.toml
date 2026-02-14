@@ -17,3 +17,10 @@ path = [
 ]
 SPDX-FileCopyrightText = '2026 林博仁(Buo-ren Lin) <buo.ren.lin@gmail.com>'
 SPDX-License-Identifier = 'CC-BY-SA-4.0+'
+
+[[annotations]]
+path = [
+    "snap/gui/prime95.png"
+]
+SPDX-FileCopyrightText = '2024 Prime95 copyright holders <https://www.mersenne.org/>'
+SPDX-License-Identifier = 'LicenseRef-FairUse'

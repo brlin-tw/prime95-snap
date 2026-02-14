@@ -1,0 +1,12 @@
+# Simple desktop entry to add the application to the menu
+#
+# Copyright 2026 Buo-ren Lin <buo.ren.lin@gmail.com>
+# SPDX-License-Identifier: CC-BY-SA-4.0+
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Prime95 (UNOFFICIAL)
+Comment=Free Mersenne Prime Search Software
+Exec=prime95
+Icon=${SNAP}/meta/gui/prime95.png
+Categories=Utility
