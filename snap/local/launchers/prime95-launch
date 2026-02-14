@@ -133,6 +133,34 @@ if ! test -e "${RUN_EXE}"; then
     release_archive="${SNAP_USER_COMMON}/${RELEASE_ARCHIVE_URL##*/}"
 
     printf -- \
+        '%s: Info: Verifying the release archive...\n' \
+        "${basecommand}"
+    sha256sum_opts=(
+        --check
+        --strict
+        --status
+    )
+    if ! printf '%s  %s\n' \
+        "${RELEASE_ARCHIVE_SHA256}" \
+        "${release_archive}" \
+        | sha256sum "${sha256sum_opts[@]}" -; then
+        zenity_opts=(
+            --title='Launcher error'
+            --width=640
+            --error
+            --text='The downloaded application archive is corrupted (SHA256 checksum mismatch).'
+        )
+        if ! zenity "${zenity_opts[@]}"; then
+            printf -- \
+                '%s: Error: Unable to present the zenity error dialog.\n.' \
+                "${basecommand}" \
+                1>&2
+            exit 2
+        fi
+        exit 2
+    fi
+
+    printf -- \
         '%s: Info: Extracting the release archive...\n' \
         "${basecommand}"
     if ! unzip -o "${release_archive}" -d "${SNAP_USER_COMMON}"; then
