@@ -25,6 +25,12 @@ confinement: strict
 architectures:
   - build-on: amd64
 
+website: https://www.mersenne.org/download/
+source-code: https://gitlab.com/brlin/prime95-snap
+issues: https://gitlab.com/brlin/prime95-snap/-/issues
+contact: https://gitlab.com/brlin/prime95-snap/-/issues
+license: Proprietary
+
 parts:
   # The sommelier script helps you snap Windows applications using Wine. It
   # initializes and configures Wine and installs the Windows application.
