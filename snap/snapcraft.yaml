@@ -19,6 +19,7 @@ description: |
   https://gitlab.com/brlin/prime95-snap/-/issues
 
   Thank you for your cooperation.
+icon: snap/gui/prime95.png
 
 grade: stable
 confinement: strict
