@@ -65,6 +65,8 @@
 *.jpg
 *.png
 !/snap/gui/*.png
+!/snap/local/screenshots/*.png
+!/snap/local/screenshots/*.jpg
 
 # Don't track common export formats from Markdown
 *.doc?
