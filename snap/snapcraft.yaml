@@ -1,0 +1,109 @@
+# Snapcraft project file for the Unoffcial Prime95 snap
+#
+# Copyright 2026 Buo-ren Lin <buo.ren.lin@gmail.com>
+# SPDX-License-Identifier: CC-BY-SA-4.0+
+name: prime95
+title: Prime95 (UNOFFICIAL)
+base: core22
+version: 30.19b20
+summary: Free Mersenne Prime Search Software
+description: |
+  The client of the Great Internet Mersenne Prime Search (GIMPS), a volunteer computing project dedicated to searching for Mersenne primes. It is also used in overclocking to test for system stability.
+
+  **NOTICE**
+
+  This is not an official distribution of the Prime95 software.  It is not an distribution either as the software itself isn't necessarily redistributable according to the upstream's EULA.  The actual software will be downloaded from the upstream's official website during launch.  As we cannot certify the integrity of the software downloaded from the upstream's official website, we cannot guarantee the security of this snap.  Please use it at your own risk.
+
+  If you encounter any problems while using this snap, please report them to the snap's own issue tracker:
+
+  https://gitlab.com/brlin/prime95-snap/-/issues
+
+  Thank you for your cooperation.
+
+grade: devel
+confinement: strict
+architectures:
+  - build-on: amd64
+
+parts:
+  # The sommelier script helps you snap Windows applications using Wine. It
+  # initializes and configures Wine and installs the Windows application.
+  sommelier-core:
+    plugin: make
+    source: https://github.com/mmtrt/sommelier-core.git
+    source-branch: core22
+    build-packages:
+      - libc6-dev-i386
+      - gcc-multilib
+    stage-packages:
+      - xdg-user-dirs
+
+  launchers:
+    plugin: dump
+    source: snap/local/launchers
+    organize:
+      '*-launch': bin/
+    stage-packages:
+      - curl
+      - unzip
+
+  # Integrate custom dialogs in your snap - doc - snapcraft.io
+  # https://forum.snapcraft.io/t/integrate-custom-dialogs-in-your-snap/10825
+  zenity:
+    plugin: nil
+    stage-packages:
+      - zenity
+    prime:
+      - usr/bin/zenity
+      - usr/share/zenity/*
+      - usr/share/doc/*/copyright*
+
+plugs:
+  shmem:
+    interface: shared-memory
+    private: true
+  wine-runtime-c22:
+    interface: content
+    target: $SNAP/wine-runtime
+    default-provider: wine-platform-runtime-core22
+  wine-9-stable:
+    interface: content
+    target: $SNAP/wine-platform
+    default-provider: wine-platform-9-stable-core22
+
+layout:
+  # Fix resource relocation problem of zenity part
+  /usr/share/zenity:
+    symlink: $SNAP/usr/share/zenity
+
+apps:
+  prime95:
+    extensions: [gnome]
+    command: bin/sommelier run-exe
+    command-chain:
+      - bin/prime95-launch
+    environment:
+      # Prevent pop-ups about Wine Mono and Wine Gecko
+      WINEDLLOVERRIDES: "$WINEDLLOVERRIDES;mscoree,mshtml="
+
+      # Make Sommelier exit when unset variable is used. (useful to find bugs in sommelier)
+      SOMMELIER_STRICT: "1"
+
+      RUN_EXE: '${SNAP_USER_COMMON}/prime95.exe'
+
+      RELEASE_ARCHIVE_URL: https://download.mersenne.ca/gimps/v30/30.19/p95v3019b20.win64.zip
+      RELEASE_ARCHIVE_SHA256: d9475f2ff3f4a6a701abc49a86a66126cb48abd10bda6fa87039d98fa8756bca
+    plugs:
+      #- home
+      - network
+      #- removable-media
+  wine:
+    extensions: [gnome]
+    command: bin/sommelier
+    plugs:
+      - network
+  winetricks:
+    extensions: [gnome]
+    command: bin/sommelier winetricks
+    plugs:
+      - network

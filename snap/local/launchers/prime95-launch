@@ -1,0 +1,147 @@
+#!/usr/bin/env bash
+# Snap maintainence launcher
+#
+# Copyright 2026 林博仁(Buo-ren Lin) <buo.ren.lin@gmail.com>
+# SPDX-License-Identifier: CC-BY-SA-4.0+
+
+RELEASE_ARCHIVE_URL="${RELEASE_ARCHIVE_URL:-}"
+RELEASE_ARCHIVE_SHA256="${RELEASE_ARCHIVE_SHA256:-}"
+RUN_EXE="${RUN_EXE:-}"
+
+if ! set -eu; then
+    printf \
+        'Error: Unable to set strict mode for the launcher script.\n' \
+        1>&2
+    exit 1
+fi
+
+basecommand="${0}"
+
+if test -z "${RELEASE_ARCHIVE_URL}" || test -z "${RELEASE_ARCHIVE_SHA256}"; then
+    printf -- \
+        '%s: Error: The RELEASE_ARCHIVE_URL and RELEASE_ARCHIVE_SHA256 environment variables must be set.\n' \
+        "${basecommand}" \
+        1>&2
+    exit 1
+fi
+
+if test -z "${RUN_EXE}"; then
+    printf -- \
+        '%s: Error: The RUN_EXE environment variable must be set.\n' \
+        "${basecommand}" \
+        1>&2
+    exit 1
+fi
+
+maintainer_notice_read_marker_file="${SNAP_USER_COMMON}/skip-maintainer-notice.marker"
+if ! test -e "${maintainer_notice_read_marker_file}"; then
+msg_text="$(cat <<EOF
+Hello, this is 林博仁(Buo-ren Lin), the maintainer of the Prime95 snap.
+
+I would like to inform you that this is NOT an official distribution of the
+Prime95 application, please report all issues regarding the usage of
+this snap to the snap's own issue tracker:
+
+    Issues · Unofficial snap packaging for Prime95 · GitLab
+    https://gitlab.com/brlin/prime95-snap/-/issues
+
+Thank you.
+
+This dialog will only display once, to see it again remove the
+<tt>${maintainer_notice_read_marker_file}</tt>
+marker file and relaunch the application.
+EOF
+)"
+    zenity_opts=(
+        --title='Notice from the snap maintainer'
+        --width=640
+        --info
+        --ok-label='Continue'
+        --text="${msg_text}"
+    )
+    if ! zenity "${zenity_opts[@]}"; then
+        printf -- \
+            '%s: Error: Unable to present the snap maintainer notice.\n.' \
+            "${basecommand}" \
+            1>&2
+        exit 2
+    fi
+    if ! touch "${maintainer_notice_read_marker_file}"; then
+        printf -- \
+            '%s: Error: Unable to create the maintainer notice read marker file.\n' \
+            "${basecommand}" \
+            1>&2
+        exit 2
+    fi
+fi
+
+if ! test -e "${RUN_EXE}"; then
+    zenity_opts=(
+        --progress
+        --title='Downloading the application'
+        --text='Application executable not found, downloading from the official website...'
+        --pulsate
+        --no-cancel
+    )
+    sleep infinity \
+        | zenity "${zenity_opts[@]}" &
+    pulsate_zenity_pid="${!}"
+    cd "${SNAP_USER_COMMON}"
+    curl_opts=(
+        --location
+        --remote-name
+        --remote-header-name
+        --write-out '%{http_code}'
+        --silent
+        --show-error
+    )
+    if test "$(
+            curl "${curl_opts[@]}" \
+                "${RELEASE_ARCHIVE_URL}"
+        )" != 200; then
+        if ! kill "${pulsate_zenity_pid}"; then
+            printf -- \
+                '%s: Error: Unable to kill the application download progress Zenity dialog.\n' \
+                "${basecommand}" \
+                1>&2
+            exit 2
+        fi
+        zenity_opts=(
+            --title='Launcher error'
+            --width=640
+            --error
+            --text='Unable to download the application from the official website.'
+        )
+        if ! zenity "${zenity_opts[@]}"; then
+            printf -- \
+                '%s: Error: Unable to present the zenity error dialog.\n.' \
+                "${basecommand}" \
+                1>&2
+            exit 2
+        fi
+        exit 2
+    fi
+    if ! kill "${pulsate_zenity_pid}"; then
+        printf -- \
+            '%s: Error: Unable to kill the application download progress Zenity dialog.\n' \
+            "${basecommand}" \
+            1>&2
+        exit 2
+    fi
+    cd - >/dev/null
+
+    release_archive="${SNAP_USER_COMMON}/${RELEASE_ARCHIVE_URL##*/}"
+
+    printf -- \
+        '%s: Info: Extracting the release archive...\n' \
+        "${basecommand}"
+    if ! unzip -o "${release_archive}" -d "${SNAP_USER_COMMON}"; then
+        printf -- \
+            '%s: Error: Unable to extract the release archive.\n' \
+            "${basecommand}" \
+            1>&2
+        exit 2
+    fi
+fi
+
+exec "${@}"
