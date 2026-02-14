@@ -12,7 +12,7 @@ description: |
 
   **NOTICE**
 
-  This is not an official distribution of the Prime95 software.  It is not an distribution either as the software itself isn't necessarily redistributable according to the upstream's EULA.  The actual software will be downloaded from the upstream's official website during launch.  As we cannot certify the integrity of the software downloaded from the upstream's official website, we cannot guarantee the security of this snap.  Please use it at your own risk.
+  This is not an official distribution of the Prime95 software.  It is not a distribution either as the software itself isn't necessarily redistributable according to the upstream's EULA.  The actual software will be downloaded from the upstream's official website during launch.  As we cannot certify the integrity of the software downloaded from the upstream's official website, we cannot guarantee the security of this snap.  Please use it at your own risk.
 
   If you encounter any problems while using this snap, please report them to the snap's own issue tracker:
 
