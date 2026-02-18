@@ -6,7 +6,9 @@
 Version=1.0
 Type=Application
 Name=Prime95 (UNOFFICIAL)
+Name[zh_TW]=Prime95（非官方）
 Comment=Free Mersenne Prime Search Software
+Comment[zh_TW]=免費的梅森質數(Mersenne Prime)搜尋軟體
 Exec=prime95
 Icon=${SNAP}/meta/gui/prime95.png
 Categories=Utility
